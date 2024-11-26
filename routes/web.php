@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MetricHistoryRunController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::controller(MetricHistoryRunController::class)->group(function () {
+    Route::get('/', 'index')->name('metrics_index');
+    Route::get('/list', 'list')->name('metrics_list');
 });
