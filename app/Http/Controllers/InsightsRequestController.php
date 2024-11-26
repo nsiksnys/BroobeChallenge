@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Log\Logger;
+use Illuminate\Support\Facades\Validator;
 use Psr\Http\Message\ResponseInterface;
 
 class InsightsRequestController extends Controller
@@ -31,19 +32,34 @@ class InsightsRequestController extends Controller
 
     public function get(Request $request): JsonResponse
     {
-        $url = $request->get('url', '');
-        $categories = $request->get('categories', []);
-        $strategy = $request->get('strategy', '');
+        $validator = Validator::make($request->all(), [
+            'url' => 'required|url:http,https|max:255',
+            'strategy' => 'required|string',
+            'categories' => 'required|array'
+        ]); 
 
-        $params = $this->getParams($url, $categories, $strategy);
+        if ($validator->fails()) {
+            $errors = [];
+            foreach($validator->errors()->getMessages() as $input => $messages ) {
+                $errors[] = strtoupper($input) . ': ' . implode(',', $messages);
+            }
+            $errorMessage = "The following errors were found - " . implode(' ',$errors);
+            $this->log->error("Insight request - validation failed.");
+            return response()->json($errorMessage)->setStatusCode(400);
+        }
+ 
+        // Get the validated inputs.
+        // This is better than calling one by one like before
+        $validated = $validator->validated();
+        $params = $this->getParams($validated['url'], $validated['categories'], $validated['strategy']);
 
         try {
             $response = $this->sendRequest($params);
-            $this->log->info("Request executed. Response code: " . $response->getStatusCode());
+            $this->log->info("Insight request - Request executed. Response code: " . $response->getStatusCode());
 
             return response()->json($this->handleResponse($response->getBody()->getContents()));
         } catch (\GuzzleHttp\Exception\GuzzleException $e) {
-            $this->log->error($e->getMessage());
+            $this->log->error("Insight request - " . $e->getMessage());
             return response()->json("Something went wrong. Please try again later")->setStatusCode(500);
         }
     }

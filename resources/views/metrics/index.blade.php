@@ -90,8 +90,10 @@
                         // Do something with the data
                         showResults(data);
 					} else {
-					// Handle error
-					console.error("Something went wrong. Try again later.");
+                        // Handle error
+                        var error = JSON.parse(request.responseText)
+                        console.error(error);
+                        alert(error);
 					}
 				}
 			};
