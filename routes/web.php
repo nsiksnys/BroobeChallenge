@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\InsightsRequestController;
 use App\Http\Controllers\MetricHistoryRunController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,3 +19,5 @@ Route::controller(MetricHistoryRunController::class)->group(function () {
     Route::get('/', 'index')->name('metrics_index');
     Route::get('/list', 'list')->name('metrics_list');
 });
+
+Route::get('/insights', [InsightsRequestController::class, 'get'])->name('insights');
