@@ -1,5 +1,16 @@
 <x-layout>
-    <!-- metrics main page -->
+    @if ($errors->any())
+    <!-- Display errors -->
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <!-- metrics form -->
     <div id="insightsForm">
         <div class="row">
             <div class="col-md-3">
@@ -35,9 +46,11 @@
     <div id="results" class="mt-5" hidden>
         <form method="POST" action="{{ route('metrics_store') }}">
             @csrf
-            <input id="url" name="url" type="hidden">
             <input id="strategy_id" name="strategy_id" type="hidden">
-            <input id="pwa_metric" name="pwa_metric" type="hidden" value="0">
+            
+            @foreach($fillables as $fillable)
+            <input id="{{ $fillable }}" name="{{ $fillable }}" type="hidden">
+            @endforeach
 
             <div class="row">
                 {{-- create category cards (all but PWA) --}}
@@ -47,7 +60,6 @@
                     <div id="{{ strtolower($category->name) }}-card" name="{{ strtolower($category->name) }}-card" class="card-body">
                         <h6 class="card-subtitle mb-2 text-body-secondary">{{ str_replace('_',' ',$category->name) }}</h6>
                         <h1 id="{{ strtolower($category->name) }}-card-value" class="card-title">0.0</h1>
-                        <input id="{{ strtolower($category->name) }}_metric" name="{{ strtolower($category->name) }}_metric" type="hidden" value="0">
                     </div>
                 </div>
                 @endif
@@ -76,6 +88,9 @@
             
             // route defined in the project
             var url = "{{ route('insights') }}";
+            
+            // Clear all inputs, just in case
+            resetInputs();
 
             // Ajax call
 			var request = new XMLHttpRequest();
@@ -103,23 +118,40 @@
             var form = document.getElementById('results');
 
             // set hidden values
-            form.querySelector("input[name='url']").value = data['finalDisplayedUrl'];
+            form.querySelector("input[name='url']").value = data['requestedUrl'];
             form.querySelector("input[name='strategy_id']").value = document.getElementById("insightsForm").querySelector("select[name='strategy']").selectedOptions[0].value;
 
             // set metric values
             for (const [key, value] of Object.entries(data.categories)) {
                 document.getElementById(key.replace('-','_') + '-card-value').textContent = value.score;
-                document.getElementById(key.replace('-','_') + '_metric').value = value.score;
-            }
-
-            // fix the accesibility input (name should be "accesibility" instead of "accessibility")
-            if (document.getElementsByName('accessibility_metric').length > 0) {
-                document.getElementById('accessibility_metric').name = 'accesibility_metric';
-                document.getElementsByName('accesibility_metric')[0].id = 'accesibility_metric';
+                document.getElementById(key.replace('-','_').replace('accessibility','accesibility') + '_metric').value = value.score;
             }
 
             // make the results section visible
             document.getElementById('results').hidden = false;
+        }
+
+        function resetInputs() {
+            // make the results section hidden
+            document.getElementById('results').hidden = true;
+            
+            // clear all inputs
+            var form = document.getElementById('results');
+            form.querySelectorAll('input').forEach((item) => {
+                if (item.name != "_token"){
+                    if (item.name == 'url') {
+                        item.value = "";
+                    }
+                    else {
+                        item.value = 0;
+                    }
+                }
+            });
+
+            // clear all cards
+            form.querySelectorAll('h1.card-title').forEach((item) => {
+                item.textContent = "0.0"
+            })
         }
     </script>
 </x-layout>
