@@ -61,3 +61,16 @@ API endpoint url. Defaults to `https://www.googleapis.com/pagespeedonline/v5/run
 
 ## Running locally
 For local development, run `php artisan serve` to run just the local server or `composer run dev` to start the local development server, queue worker, and Vite development server
+
+## Screenshots
+* Home page
+![Home page](/screenshots/Run%20metric%20page.png)
+
+* Validation error message
+![Validation error message](/screenshots/Validation%20fail%20message.png)
+
+* Showing metrics
+![Metrics results](/screenshots/Results%20page.png)
+
+* Saved metric runs
+![Metrics history page](/screenshots/Metric%20history%20page.png)
