@@ -60,7 +60,7 @@ API key. This variable is blank by default. To generate a key, please go to [Get
 API endpoint url. Defaults to `https://www.googleapis.com/pagespeedonline/v5/runPagespeed`.
 
 ## Running locally
-For local development, run `php artisan serve` to run just the local server or `composer run dev` to start the local development server, queue worker, and Vite development server
+For local development, run `php artisan serve` to run just the local server.
 
 ## Screenshots
 * Home page
