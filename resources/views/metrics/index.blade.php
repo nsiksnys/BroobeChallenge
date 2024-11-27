@@ -116,7 +116,8 @@
             .done(function(data) {
                 showResults(data);
             })
-            .fail(function(error) {
+            .fail(function(request) {
+                var error = JSON.parse(request.responseText)
                 console.error(error);
                 alert(error);
             })
