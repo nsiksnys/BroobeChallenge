@@ -38,12 +38,16 @@
             </div>
             <div class="col-md-2">
                 <button id="getInsights" class="form-control btn btn-primary" onclick="insightsRequest()">GET METRICS</button>
+                <button id="spinner" class="form-control btn btn-primary" type="button" disabled>
+                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    <span role="status">SENDING REQUEST...</span>
+                </button>
             </div>
         </div>
     </div>
 
     <!-- display results -->
-    <div id="results" class="mt-5" hidden>
+    <div id="results" class="mt-5">
         <form method="POST" action="{{ route('metrics_store') }}">
             @csrf
             <input id="strategy_id" name="strategy_id" type="hidden">
@@ -71,6 +75,10 @@
         </form>
     </div>
     <script type="application/javascript">
+        // Hide the spinner button and the results section
+        $("#spinner").hide();
+        $("#results").hide();
+
 		// Get site metrics
         function insightsRequest() {
             // form element and submitted inputs
@@ -93,25 +101,29 @@
             resetInputs();
 
             // Ajax call
-			var request = new XMLHttpRequest();
-			request.open("GET", url + "?" + params);
-			request.send();
-			request.onreadystatechange = function() {
-				if (request.readyState == XMLHttpRequest.DONE) {
-					// Check the status of the response
-					if (request.status == 200) {
-                        // Access the data returned by the server
-                        var data = JSON.parse(request.responseText);
-                        // Do something with the data
-                        showResults(data);
-					} else {
-                        // Handle error
-                        var error = JSON.parse(request.responseText)
-                        console.error(error);
-                        alert(error);
-					}
-				}
-			};
+            $.ajaxSetup({
+                beforeSend: () => {
+                    $("#spinner").show();
+                    $("#getInsights").hide();
+                },
+                complete: () => {
+                    $("#spinner").hide();
+                    $("#getInsights").show();
+                }
+            });
+
+            $.ajax( url + "?" + params)
+            .done(function(data) {
+                showResults(data);
+            })
+            .fail(function(error) {
+                console.error(error);
+                alert(error);
+            })
+            .always(function() {
+                $("#spinner").hide();
+                $("#getInsights").show();
+            });
         }
         
         function showResults(data) {
@@ -134,12 +146,12 @@
             }
 
             // make the results section visible
-            document.getElementById('results').hidden = false;
+            $("#results").show();
         }
 
         function resetInputs() {
             // make the results section hidden
-            document.getElementById('results').hidden = true;
+            $("#results").hide();
             
             // clear all inputs
             var form = document.getElementById('results');
