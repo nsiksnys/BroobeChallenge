@@ -11,37 +11,35 @@
 		<script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
    </head>
     <body>
-        <!-- Header -->
-		<main>
-			<div class="container">
-				<div class="py-5">
-					<div class="text-center">
-						<a href="#"><h1>Broobe Challenge</h1></a>
-					</div>
+        <!-- Body -->
+		<main class="bg-light">
+			<div class="py-3 border-bottom">
+				<div class="text-center">
+					<h1>Broobe Challenge</h1>	
 				</div>
-				<div class="py-5">
+			</div>
+			<div class="container">
+				<div class="py-3">
 					<ul class="nav nav-tabs justify-content-center">
 						<li class="nav-item">
-						  <a class="nav-link" aria-current="page" href="{{ route('metrics_index') }}">Run Metric</a>
+						  <a class="nav-link @if(url()->current() == route('metrics_index')) active @endif " href="{{ route('metrics_index') }}" @if(url()->current() == route('metrics_index')) aria-current="page" @endif >Run Metric</a>
 						</li>
 						<li class="nav-item">
-						  <a class="nav-link" href="{{ route('metrics_list') }}">Metric History</a>
+						  <a class="nav-link @if(url()->current() == route('metrics_list')) active @endif " href="{{ route('metrics_list') }}" @if(url()->current() == route('metrics_list')) aria-current="page" @endif >Metric History</a>
 						</li>
 					</ul>
 				</div>
-				<div class="py-5">
+				<div class="py-3">
 				{{ $slot }}
 				</div>
 			</div>
 		</main>
     </body>
-	<footer class="text-muted py-5">
-	<div class="container">
-		<p class="float-end mb-1">
-		<a href="#">Go up</a>
-		</p>
-		<p class="mb-1">©Nadia Siksnys, 2024</p>
-		<p class="mb-0">Powered by Laravel 10, Guzzle 7.2, and Bootstrap 5.0</p>
-	</div>
+	<footer class="text-muted py-3">
+        <!-- Footer -->
+		<div class="container">
+			<p class="mb-1">©Nadia Siksnys, 2024</p>
+			<p class="mb-0">Powered by Laravel 10, Guzzle 7.2, Bootstrap 5.3, DataTables 2.1</p>
+		</div>
 	</footer>
 </html>
