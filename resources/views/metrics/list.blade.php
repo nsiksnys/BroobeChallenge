@@ -5,6 +5,7 @@
         <thead>
             <th>ID</th>
             <th>URL</th>
+            <th>STRATEGY</th>
             <th>ACCESSIBILITY</th>
             <th>BEST_PRACTICES</th>
             <th>PERFORMANCE</th>
@@ -17,6 +18,7 @@
             <tr>
                 <td>{{ $record->id }}</td>
                 <td>{{ $record->url }}</td>
+                <td>{{ $record->strategy->name }}</td>
                 <td>{{ $record->accesibility_metric }}</td>
                 <td>{{ $record->best_practices_metric }}</td>
                 <td>{{ $record->performance_metric }}</td>
