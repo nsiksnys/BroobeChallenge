@@ -123,8 +123,14 @@
 
             // set metric values
             for (const [key, value] of Object.entries(data.categories)) {
-                document.getElementById(key.replace('-','_') + '-card-value').textContent = value.score;
-                document.getElementById(key.replace('-','_').replace('accessibility','accesibility') + '_metric').value = value.score;
+                var category = key.replace('-','_');
+                document.getElementById(category + '-card-value').textContent = value.score;
+                document.getElementById(category.replace('accessibility','accesibility') + '_metric').value = value.score;
+                
+                // paint the card based on the score
+                var color = 'text-bg-' + paintCards(value.score);
+                var card = document.getElementById(category + '-card');
+                $(card).addClass(color);
             }
 
             // make the results section visible
@@ -152,6 +158,28 @@
             form.querySelectorAll('h1.card-title').forEach((item) => {
                 item.textContent = "0.0"
             })
+        }
+
+        /*
+            Paint cards according to their score
+            Values are:
+            0 to 49 (red): Poor
+            50 to 89 (orange): Needs Improvement
+            90 to 100 (green): Good
+            For more information about this, check https://developer.chrome.com/docs/lighthouse/performance/performance-scoring#color-coding
+        */
+        function paintCards(value){
+            if (value >= 0 && value < 0.5) {
+                return "danger";
+            }
+            
+            if (value >= 0.5 && value < 0.9) {
+                return "warning";
+            }
+
+            if (value >= 0.9 && value <= 1) {
+                return "success";
+            }
         }
     </script>
 </x-layout>
