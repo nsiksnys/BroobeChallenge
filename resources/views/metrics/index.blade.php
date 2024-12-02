@@ -1,14 +1,9 @@
 <x-layout>
-    @if ($errors->any())
     <!-- Display errors -->
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <div id="errors" class="alert alert-danger">
+        <ul>
+        </ul>
+    </div>
 
     <!-- metrics form -->
     <div id="insightsForm">
@@ -74,6 +69,7 @@
         // Hide the spinner button and the results section
         $("#spinner").hide();
         $("#results").hide();
+        $("#errors").hide();
 
 		// Get site metrics
         function insightsRequest() {
@@ -113,9 +109,8 @@
                 showResults(data);
             })
             .fail(function(request) {
-                var error = JSON.parse(request.responseText)
-                console.error(error);
-                alert(error);
+                parseErrors(request.responseJSON);
+                $("#errors").show();
             })
             .always(function() {
                 $("#spinner").hide();
@@ -167,6 +162,10 @@
             form.querySelectorAll('h1.card-title').forEach((item) => {
                 item.textContent = "0.0"
             })
+
+            // clear all errors and hide the div
+            $("#errors").hide();
+            document.getElementById('errors').querySelector('ul').innerHTML = "";
         }
 
         /*
@@ -189,6 +188,16 @@
             if (value >= 0.9 && value <= 1) {
                 return "success";
             }
+        }
+
+        function parseErrors(inputs){
+            var errorsList = "";
+            for (const [input, errors] of Object.entries(inputs)) {
+                errors.forEach(error => {
+                    errorsList += "<li>" + error + "</li>";
+                });
+            }
+            document.getElementById('errors').querySelector('ul').innerHTML = errorsList;
         }
     </script>
 </x-layout>

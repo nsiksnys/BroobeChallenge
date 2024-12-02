@@ -31,13 +31,9 @@ class InsightsRequestController extends Controller
         ]); 
 
         if ($validator->fails()) {
-            $errors = [];
-            foreach($validator->errors()->getMessages() as $input => $messages ) {
-                $errors[] = strtoupper($input) . ': ' . implode(',', $messages);
-            }
-            $errorMessage = "The following errors were found - " . implode(' ',$errors);
             $this->log->error("Insight request - validation failed.");
-            return response()->json($errorMessage)->setStatusCode(400);
+
+            return response()->json($validator->errors()->getMessages())->setStatusCode(400);
         }
  
         // Get the validated inputs.
@@ -53,6 +49,7 @@ class InsightsRequestController extends Controller
             return response()->json($this->client->getLighthouseResult());
         } catch (\GuzzleHttp\Exception\GuzzleException $e) {
             $this->log->error("Insight request - " . $e->getMessage());
+            
             return response()->json("Something went wrong. Please try again later")->setStatusCode(500);
         }
     }
