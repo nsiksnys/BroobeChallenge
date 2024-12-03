@@ -34,17 +34,15 @@
         </tbody>
     </table>
     <script>
-        $(document).ready( function () {
-            $('#resultsTable').DataTable({
-                // Hide the id column
-                columnDefs: [
-                    {
-                        target: 0,
-                        visible: false,
-                        searchable: false
-                    }
-                ]
-            });
-        } );
+        let table = new DataTable('#resultsTable',{
+            // Hide the id column
+            columnDefs: [
+                {
+                    target: 0,
+                    visible: false,
+                    searchable: false
+                }
+            ]
+        });
     </script>
 </x-layout>

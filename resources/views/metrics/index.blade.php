@@ -67,9 +67,9 @@
     </div>
     <script type="application/javascript">
         // Hide the spinner button and the results section
-        $("#spinner").hide();
-        $("#results").hide();
-        $("#errors").hide();
+        document.getElementById("spinner").hidden = true;
+        document.getElementById("results").hidden = true;
+        document.getElementById("errors").hidden = true;
 
 		// Get site metrics
         function insightsRequest() {
@@ -93,29 +93,33 @@
             resetInputs();
 
             // Ajax call
-            $.ajaxSetup({
-                beforeSend: () => {
-                    $("#spinner").show();
-                    $("#getInsights").hide();
-                },
-                complete: () => {
-                    $("#spinner").hide();
-                    $("#getInsights").show();
-                }
-            });
-
-            $.ajax( url + "?" + params)
-            .done(function(data) {
-                showResults(data);
-            })
-            .fail(function(request) {
-                parseErrors(request.responseJSON);
-                $("#errors").show();
-            })
-            .always(function() {
-                $("#spinner").hide();
-                $("#getInsights").show();
-            });
+            var request = new XMLHttpRequest();
+			request.open("GET", url + "?" + params);
+            request.onloadstart = function() {
+                document.getElementById("spinner").hidden = false;
+                document.getElementById("getInsights").hidden = true;
+            }
+			request.onreadystatechange = function() {
+				if (request.readyState == XMLHttpRequest.DONE) {
+					// Check the status of the response
+					if (request.status == 200) {
+                        // Access the data returned by the server
+                        var data = JSON.parse(request.responseText);
+                        // Do something with the data
+                        showResults(data);
+					} else {
+                        // Handle errors
+                        var errors = JSON.parse(request.responseText);
+                        parseErrors(errors);
+                        document.getElementById("errors").hidden = false;
+					}
+				}
+			}
+            request.onloadend = function() {
+                document.getElementById("spinner").hidden = true;
+                document.getElementById("getInsights").hidden = false;
+            }
+			request.send();
         }
         
         function showResults(data) {
@@ -132,18 +136,19 @@
                 document.getElementById(category.replace('accessibility','accesibility') + '_metric').value = value.score;
                 
                 // paint the card based on the score
-                var color = 'text-bg-' + paintCards(value.score);
                 var card = document.getElementById(category + '-card');
-                $(card).addClass(color);
+                var classes = card.getAttribute('class');
+                var color = 'text-bg-' + paintCards(value.score);
+                card.setAttribute('class', classes + ' ' + color);
             }
 
             // make the results section visible
-            $("#results").show();
+            document.getElementById("results").hidden = false;
         }
 
         function resetInputs() {
             // make the results section hidden
-            $("#results").hide();
+            document.getElementById("results").hidden = true;
             
             // clear all inputs
             var form = document.getElementById('results');
@@ -162,9 +167,15 @@
             form.querySelectorAll('h1.card-title').forEach((item) => {
                 item.textContent = "0.0"
             })
+            
+            // remove all text-bg classes
+            form.querySelectorAll('card').forEach(card => {
+                var classes = card.getAttribute('class');
+                card.setAttribute('class', classes.replaceAll(/ text-bg-([a-z]+)/gi,''));
+            })
 
             // clear all errors and hide the div
-            $("#errors").hide();
+            document.getElementById("errors").hidden = true;
             document.getElementById('errors').querySelector('ul').innerHTML = "";
         }
 
@@ -192,6 +203,12 @@
 
         function parseErrors(inputs){
             var errorsList = "";
+
+            if (typeof inputs === "string") {
+                document.getElementById('errors').querySelector('ul').innerHTML = inputs;
+                return;
+            }
+
             for (const [input, errors] of Object.entries(inputs)) {
                 errors.forEach(error => {
                     errorsList += "<li>" + error + "</li>";
