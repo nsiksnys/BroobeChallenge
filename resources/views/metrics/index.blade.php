@@ -4,6 +4,10 @@
         <ul>
         </ul>
     </div>
+    
+    <!-- Display info -->
+    <div id="success" class="alert alert-success">
+    </div>
 
     <!-- metrics form -->
     <div id="insightsForm">
@@ -33,7 +37,7 @@
             </div>
             <div class="col-md-2">
                 <button id="getInsights" class="form-control btn btn-primary" onclick="insightsRequest()">GET METRICS</button>
-                <button id="spinner" class="form-control btn btn-primary" type="button" disabled>
+                <button id="spinnerGetInsights" class="form-control btn btn-primary" type="button" disabled>
                     <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
                     <span role="status">SENDING REQUEST...</span>
                 </button>
@@ -43,33 +47,37 @@
 
     <!-- display results -->
     <div id="results" class="mt-5">
-        <form method="POST" action="{{ route('metrics_store') }}">
-            @csrf
-            <input id="strategy_id" name="strategy_id" type="hidden">
-            
-            @foreach($fillables as $fillable)
-            <input id="{{ $fillable }}" name="{{ $fillable }}" type="hidden">
-            @endforeach
+        @csrf
+        <input id="strategy_id" name="strategy_id" type="hidden">
+        
+        @foreach($fillables as $fillable)
+        <input id="{{ $fillable }}" name="{{ $fillable }}" type="hidden">
+        @endforeach
 
-            <div class="row">
-                {{-- create category cards (all but PWA) --}}
-                @foreach ($categories as $category)
-                @if ($category->name != "PWA")
-                <x-card :category="$category->name">
-                </x-card>
-                @endif
-                @endforeach
-            </div>
-            <div class="row mt-2">
-                <button id="insights-save" type="submit" class="btn btn-primary col-md-2">SAVE METRIC RUN</button>
-            </div>
-        </form>
+        <div class="row">
+            {{-- create category cards (all but PWA) --}}
+            @foreach ($categories as $category)
+            @if ($category->name != "PWA")
+            <x-card :category="$category->name">
+            </x-card>
+            @endif
+            @endforeach
+        </div>
+        <div class="row mt-2">
+            <button id="saveInsights" class="btn btn-primary col-md-2" onclick="saveMetrics()">SAVE METRIC RUN</button>
+            <button id="spinnerSaveInsights" class="btn btn-primary col-md-2" type="button" disabled>
+                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                <span role="status">SAVING...</span>
+            </button>
+        </div>
     </div>
     <script type="application/javascript">
         // Hide the spinner button and the results section
-        document.getElementById("spinner").hidden = true;
+        document.getElementById("spinnerGetInsights").hidden = true;
+        document.getElementById("spinnerSaveInsights").hidden = true;
         document.getElementById("results").hidden = true;
         document.getElementById("errors").hidden = true;
+        document.getElementById("success").hidden = true;
 
 		// Get site metrics
         function insightsRequest() {
@@ -93,22 +101,39 @@
             resetInputs();
 
             // Ajax call
+            ajaxRequest("GET", url, params, "spinnerGetInsights", "getInsights", showResults);
+        }
+
+        function saveMetrics() {
+            var form = document.getElementById('results');
+            var inputs = Array();
+            form.querySelectorAll('input').forEach(input => {
+                inputs.push(input.name + "=" + input.value);
+            })
+            var params = inputs.join('&');
+            var url = "{{ route('metrics_store') }}";
+
+            // Ajax call
+            ajaxRequest("POST", url, params, 'spinnerSaveInsights', 'saveInsights', showSuccess);
+        }
+        
+        function ajaxRequest(method, url, params, spinner, submit, callback) {
             var request = new XMLHttpRequest();
-			request.open("GET", url + "?" + params);
+			request.open(method, url + "?" + params);
             request.onloadstart = function() {
-                document.getElementById("spinner").hidden = false;
-                document.getElementById("getInsights").hidden = true;
+                document.getElementById(spinner).hidden = false;
+                document.getElementById(submit).hidden = true;
             }
 			request.onreadystatechange = function() {
 				if (request.readyState == XMLHttpRequest.DONE) {
-					// Check the status of the response
-					if (request.status == 200) {
+                    if (request.status == 200) {
                         // Access the data returned by the server
                         var data = JSON.parse(request.responseText);
                         // Do something with the data
-                        showResults(data);
-					} else {
-                        // Handle errors
+                        callback(data);
+                    }
+                    // Handle errors
+                    else {
                         var errors = JSON.parse(request.responseText);
                         parseErrors(errors);
                         document.getElementById("errors").hidden = false;
@@ -116,12 +141,12 @@
 				}
 			}
             request.onloadend = function() {
-                document.getElementById("spinner").hidden = true;
-                document.getElementById("getInsights").hidden = false;
+                document.getElementById(spinner).hidden = true;
+                document.getElementById(submit).hidden = false;
             }
 			request.send();
         }
-        
+
         function showResults(data) {
             var form = document.getElementById('results');
 
@@ -146,10 +171,16 @@
             document.getElementById("results").hidden = false;
         }
 
+        function showSuccess(message) {
+            var info = document.getElementById('success');
+            info.innerHTML = message;
+            info.hidden = false;
+        }
+
         function resetInputs() {
             // make the results section hidden
             document.getElementById("results").hidden = true;
-            
+
             // clear all inputs
             var form = document.getElementById('results');
             form.querySelectorAll('input').forEach((item) => {
@@ -177,6 +208,10 @@
             // clear all errors and hide the div
             document.getElementById("errors").hidden = true;
             document.getElementById('errors').querySelector('ul').innerHTML = "";
+
+            // make the success section hidden
+            document.getElementById('success').hidden = true;
+            document.getElementById('success').innerHTML = "";
         }
 
         /*
