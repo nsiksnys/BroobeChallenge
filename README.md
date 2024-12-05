@@ -1,8 +1,15 @@
 # Broobe challenge 
 Technical challange done with Laravel 10, PHP 8.1, Javascript, CSS and MySQL
 
+## Bussiness Logic
+Please go to the `bussiness logic.md` file for more information about this topic.
+
 ## Composer packages
 Run `composer install` to install all required packages
+
+## Database creation
+First of all, set the environment variables for the database. For more information, check the Environment Variables section.
+Then, run all database migration with the `php artisan migrate`. If the database does not exist, you will be offered the chance to create it.
 
 ## Environment variables
 All envirnoment variables are managed using a .env file, which should not be commited for security reasons. This project provides an example file, .env.example, that you can copy to create your own.
