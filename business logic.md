@@ -26,11 +26,7 @@ jQuery, as you prefer) to this previously created method.
 
 The Laravel method must use the following URL to request data:
     
-    `GET: https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=URL&key=AIzaSyDCrPAzhzWxZbJxPYIEURODTvBFVVRNHbY&category=CATEGORY1&category=CATEGORY..N&strategy=STRATEGY`
-
-    For example:
-    
-    `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https://broobe.com&key=AIzaSyDCrPAzhzWxZbJxPYIEURODTvBFVVRNHbY&category=PERFORMANCE&category=SEO&category=BEST_PRACTICES&category=ACCESSIBILITY&strategy=MOBILE`
+    `GET: https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=URL&key=KEY&category=CATEGORY1&category=CATEGORY..N&strategy=STRATEGY`
 
 4. After performing the query via AJAX, the metrics obtained with the values ​​returned by the Google API should be displayed below the fields detailed in the previous point, showing "metric name" and "value obtained" (and whatever is required at the graphic level). From the JSON returned by the query, the results are obtained from the score of each category, as shown in the image:
 
