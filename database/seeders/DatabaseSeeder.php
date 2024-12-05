@@ -14,7 +14,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             CategorySeeder::class,
-            StrategySeeder::class
+            StrategySeeder::class,
+            MetricHistoryRunSeeder::class
         ]);
     }
 }
